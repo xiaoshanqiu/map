@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>基本地图展示</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="http://cache.amap.com/lbs/static/es5.min.js"></script>
+    <script src="http://webapi.amap.com/maps?v=1.3&key=您申请的key值"></script>
+    <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js" src="b7cfdf23f55ca73a2fea4c32c5668349	"></script>
+
+    <script src="https://webapi.amap.com/ui/1.0/main.js?v=1.0.10"></script>
+    <style>
+			.container{
+				height: 500px;
+				width: 600px;
+			}
+    </style>
+</head>
+<body>
+<div id="container"></div>
+
+<script>
+    var map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom:11,
+        center: [116.499883,31.714965]
+    });
+
+    AMapUI.loadUI(['overlay/SimpleMarker'], function(SimpleMarker) {
+
+        var lngLats = getGridLngLats(map.getCenter(), 1, 1);
+
+        new SimpleMarker({
+            iconLabel: 'home',
+            //自定义图标地址
+            iconStyle: 'https://webapi.amap.com/theme/v1.3/markers/b/mark_r.png',
+
+            //设置基点偏移
+            offset: new AMap.Pixel(-19, -60),
+
+            map: map,
+
+            showPositionPoint: true,
+            position: lngLats[0],
+            zIndex: 100
+        });
+
+        
+    });
+
+    AMap.plugin(['AMap.ToolBar'], function() {
+        map.addControl(new AMap.ToolBar({
+            map: map
+        }));
+    });
+
+    /**
+     * 返回一批网格排列的经纬度
+
+     * @param  {AMap.LngLat} center 网格中心
+     * @param  {number} colNum 列数
+     * @param  {number} size  总数
+     * @param  {number} cellX  横向间距
+     * @param  {number} cellY  竖向间距
+     * @return {Array}  返回经纬度数组
+     */
+    function getGridLngLats(center, colNum, size, cellX, cellY) {
+
+      var pxCenter = map.lnglatToPixel(center);
+
+      var rowNum = Math.ceil(size / colNum);
+
+      var startX = pxCenter.getX(),
+          startY = pxCenter.getY();
+
+      cellX = cellX || 70;
+
+      cellY = cellY || 70;
+
+
+      var lngLats = [];
+
+      for (var r = 0; r < rowNum; r++) {
+
+        for (var c = 0; c < colNum; c++) {
+
+          var x = startX + (c - (colNum - 1) / 2) * (cellX);
+
+          var y = startY + (r - (rowNum - 1) / 2) * (cellY);
+
+          lngLats.push(map.pixelToLngLat(new AMap.Pixel(x, y)));
+
+          if (lngLats.length >= size) {
+            break;
+          }
+        }
+      }
+      return lngLats;
+    }
+</script>
+</body>
+</html>
